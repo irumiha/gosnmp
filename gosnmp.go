@@ -199,9 +199,11 @@ func (x *GoSNMP) Connect() error {
 	}
 
 	addr := net.JoinHostPort(x.Target, strconv.Itoa(int(x.Port)))
-	x.Conn, err = net.DialTimeout("udp", addr, x.Timeout)
-	if err != nil {
-		return fmt.Errorf("Error establishing connection to host: %s\n", err.Error())
+	if x.Conn == nil {
+		x.Conn, err = net.DialTimeout("udp", addr, x.Timeout)
+		if err != nil {
+			return fmt.Errorf("Error establishing connection to host: %s\n", err.Error())
+		}
 	}
 	if x.random == nil {
 		x.random = rand.New(rand.NewSource(time.Now().UTC().UnixNano()))
