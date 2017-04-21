@@ -198,8 +198,8 @@ func (x *GoSNMP) Connect() error {
 		return err
 	}
 
-	addr := net.JoinHostPort(x.Target, strconv.Itoa(int(x.Port)))
 	if x.Conn == nil {
+		addr := net.JoinHostPort(x.Target, strconv.Itoa(int(x.Port)))
 		x.Conn, err = net.DialTimeout("udp", addr, x.Timeout)
 		if err != nil {
 			return fmt.Errorf("Error establishing connection to host: %s\n", err.Error())
