@@ -36,13 +36,15 @@ const (
 // GoSNMP represents GoSNMP library state
 type GoSNMP struct {
 	// Conn is net connection to use, typically established using GoSNMP.Connect()
-	Conn net.Conn
+	Conn *net.UDPConn
 
 	// Target is an ipv4 address
 	Target string
 
+	targetAddress *net.UDPAddr
+
 	// Port is a udp port
-	Port uint16
+	Port int
 
 	// Community is an SNMP Community string
 	Community string
@@ -199,10 +201,17 @@ func (x *GoSNMP) Connect() error {
 	}
 
 	if x.Conn == nil {
-		addr := net.JoinHostPort(x.Target, strconv.Itoa(int(x.Port)))
-		x.Conn, err = net.DialTimeout("udp", addr, x.Timeout)
+		x.targetAddress = &net.UDPAddr{
+			IP:   net.ParseIP(x.Target),
+			Port: x.Port,
+		}
+
+		localAddr := &net.UDPAddr{
+			IP: net.ParseIP("0.0.0.0"),
+		}
+		x.Conn, err = net.ListenUDP("udp", localAddr)
 		if err != nil {
-			return fmt.Errorf("Error establishing connection to host: %s\n", err.Error())
+			return fmt.Errorf("Error creating UDP connection (host): %s\n", err.Error())
 		}
 	}
 	if x.random == nil {

@@ -151,7 +151,7 @@ func (x *GoSNMP) sendOneRequest(packetOut *SnmpPacket,
 			break
 		}
 
-		_, err = x.Conn.Write(outBuf)
+		_, err = x.Conn.WriteToUDP(outBuf, x.targetAddress)
 		if err != nil {
 			continue
 		}
@@ -769,7 +769,7 @@ func (x *GoSNMP) unmarshalVBL(packet []byte, response *SnmpPacket) error {
 
 // receive response from network and read into a byte array
 func (x *GoSNMP) receive() ([]byte, error) {
-	n, err := x.Conn.Read(x.rxBuf[:])
+	n, _, err := x.Conn.ReadFromUDP(x.rxBuf[:])
 	if err != nil {
 		return nil, fmt.Errorf("Error reading from UDP: %s", err.Error())
 	}
